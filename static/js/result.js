@@ -31,8 +31,8 @@ document.addEventListener("DOMContentLoaded", function () {
     // Event handler tombol kembali
     if (backToFormButton) {
         backToFormButton.addEventListener("click", function () {
-            // Redirect ke form.html
-            window.location.href = "../template/form.html"; // Ganti path sesuai struktur kamu
+            // Redirect ke index.html
+            window.location.href = "../index.html"; // Ganti path sesuai struktur kamu
         });
     }
 });
