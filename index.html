@@ -7,143 +7,406 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <style>
         body {
             font-family: 'Inter', sans-serif;
-            background-color: #0F172A; /* slate-900 */
+            background: linear-gradient(135deg, #0f0f23 0%, #1a1a3e 25%, #0f0f23 50%, #2d1b69 75%, #0f0f23 100%);
+            background-size: 400% 400%;
+            animation: gradientShift 15s ease infinite;
         }
+        
+        @keyframes gradientShift {
+            0%, 100% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+        }
+
         .hero-gradient {
-            background: radial-gradient(circle at top, rgba(22, 163, 74, 0.1), transparent 40%);
+            background: radial-gradient(circle at 20% 80%, rgba(120, 119, 198, 0.3), transparent 50%),
+                        radial-gradient(circle at 80% 20%, rgba(255, 119, 198, 0.3), transparent 50%),
+                        radial-gradient(circle at 40% 40%, rgba(120, 219, 255, 0.2), transparent 50%);
         }
-        .section-glow {
+
+        .glass-effect {
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .floating-orb {
+            position: absolute;
+            border-radius: 50%;
+            opacity: 0.6;
+            animation: float 6s ease-in-out infinite;
+        }
+        
+        .floating-orb:nth-child(1) {
+            width: 100px;
+            height: 100px;
+            background: radial-gradient(circle, rgba(34, 211, 238, 0.4), transparent);
+            top: 20%;
+            left: 10%;
+            animation-delay: 0s;
+        }
+        
+        .floating-orb:nth-child(2) {
+            width: 150px;
+            height: 150px;
+            background: radial-gradient(circle, rgba(168, 85, 247, 0.3), transparent);
+            top: 60%;
+            right: 15%;
+            animation-delay: -2s;
+        }
+        
+        .floating-orb:nth-child(3) {
+            width: 80px;
+            height: 80px;
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.4), transparent);
+            bottom: 30%;
+            left: 20%;
+            animation-delay: -4s;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px) rotate(0deg); }
+            50% { transform: translateY(-20px) rotate(180deg); }
+        }
+
+        .text-gradient {
+            background: linear-gradient(135deg, #06b6d4 0%, #8b5cf6 50%, #ec4899 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .glow-button {
             position: relative;
+            overflow: hidden;
         }
-        .section-glow::before {
+
+        .glow-button::before {
             content: '';
             position: absolute;
-            top: -100px;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 80%;
-            height: 200px;
-            background: radial-gradient(circle, rgba(34, 211, 238, 0.08), transparent 70%);
-            z-index: -1;
-            pointer-events: none;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s;
+        }
+
+        .glow-button:hover::before {
+            left: 100%;
+        }
+
+        .card-hover {
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .card-hover:hover {
+            transform: translateY(-10px) scale(1.02);
+            box-shadow: 0 25px 50px rgba(34, 211, 238, 0.15);
+        }
+
+        .pulse-ring {
+            position: absolute;
+            border: 2px solid rgba(34, 211, 238, 0.3);
+            border-radius: 50%;
+            animation: pulse-ring 2s cubic-bezier(0.455, 0.03, 0.515, 0.955) infinite;
+        }
+
+        @keyframes pulse-ring {
+            0% { transform: scale(0.8); opacity: 1; }
+            100% { transform: scale(1.8); opacity: 0; }
+        }
+
+        .neural-bg {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            opacity: 0.1;
+            background-image: 
+                radial-gradient(circle at 25% 25%, rgba(34, 211, 238, 0.5) 2px, transparent 2px),
+                radial-gradient(circle at 75% 75%, rgba(168, 85, 247, 0.5) 2px, transparent 2px);
+            background-size: 60px 60px;
+            animation: neural-pulse 4s ease-in-out infinite;
+        }
+
+        @keyframes neural-pulse {
+            0%, 100% { opacity: 0.1; }
+            50% { opacity: 0.3; }
+        }
+
+        .typing-animation {
+            overflow: hidden;
+            border-right: 3px solid rgba(34, 211, 238, 0.8);
+            white-space: nowrap;
+            animation: typing 3s steps(40, end), blink-caret 0.75s step-end infinite;
+        }
+
+        @keyframes typing {
+            from { width: 0; }
+            to { width: 100%; }
+        }
+
+        @keyframes blink-caret {
+            from, to { border-color: transparent; }
+            50% { border-color: rgba(34, 211, 238, 0.8); }
+        }
+
+        .parallax-container {
+            transform-style: preserve-3d;
+            perspective: 1000px;
+        }
+
+        .parallax-element {
+            transform: translateZ(-1px) scale(2);
+        }
+
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: #1e293b;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(to bottom, #06b6d4, #8b5cf6);
+            border-radius: 4px;
+        }
+
+        .menu-toggle {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .menu-toggle {
+                display: block;
+            }
         }
     </style>
 </head>
-<body class="text-gray-300">
+<body class="text-gray-300 overflow-x-hidden">
+    <div class="neural-bg"></div>
 
     <!-- Header -->
-    <header class="sticky top-0 z-50 bg-slate-900/80 backdrop-blur-lg border-b border-slate-700/50">
+    <header class="sticky top-0 z-50 glass-effect">
         <nav class="container mx-auto px-6 py-4 flex justify-between items-center">
-            <a href="#" class="text-2xl font-bold text-white">
-                Mind<span class="text-cyan-400">alyze</span> AI
+            <a href="#" class="text-2xl font-bold text-white group">
+                Mind<span class="text-gradient group-hover:animate-pulse">alyze</span> AI
             </a>
             <div class="hidden md:flex items-center space-x-8">
-                <a href="#fitur" class="hover:text-cyan-400 transition-colors">Fitur</a>
-                <a href="#cara-kerja" class="hover:text-cyan-400 transition-colors">Cara Kerja</a>
-                <a href="#faq" class="hover:text-cyan-400 transition-colors">FAQ</a>
+                <a href="#fitur" class="hover:text-cyan-400 transition-all duration-300 hover:scale-110">Fitur</a>
+                <a href="#cara-kerja" class="hover:text-cyan-400 transition-all duration-300 hover:scale-110">Cara Kerja</a>
+                <a href="#faq" class="hover:text-cyan-400 transition-all duration-300 hover:scale-110">FAQ</a>
             </div>
-            <a href="#hero" class="bg-cyan-600 hover:bg-cyan-700 text-white font-medium py-2 px-5 rounded-lg transition-colors">
+            <a href="#hero" class="glow-button bg-gradient-to-r from-cyan-600 to-purple-600 hover:from-cyan-700 hover:to-purple-700 text-white font-medium py-2 px-5 rounded-lg transition-all duration-300 hover:scale-105 shadow-lg shadow-cyan-500/25">
                 Mulai Tes
             </a>
+            <button class="menu-toggle md:hidden text-white">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path>
+                </svg>
+            </button>
         </nav>
     </header>
 
     <main>
         <!-- Hero Section -->
-        <section id="hero" class="relative hero-gradient pt-20 pb-24 text-center overflow-hidden">
-            <div class="container mx-auto px-6">
-                <div class="bg-cyan-400/10 text-cyan-300 text-sm font-medium inline-flex items-center px-4 py-1 rounded-full mb-4">
+        <section id="hero" class="relative hero-gradient pt-20 pb-24 text-center overflow-hidden min-h-screen flex items-center">
+            <div class="floating-orb"></div>
+            <div class="floating-orb"></div>
+            <div class="floating-orb"></div>
+            
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="glass-effect text-cyan-300 text-sm font-medium inline-flex items-center px-4 py-1 rounded-full mb-8 animate-bounce">
+                    <div class="w-2 h-2 bg-green-400 rounded-full mr-2 animate-pulse"></div>
                     Alat Skrining Berbasis Kecerdasan Buatan
                 </div>
-                <h1 class="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
-                    Pahami Kondisi Mental Anda Lebih Baik
+                
+                <h1 class="text-4xl md:text-7xl font-black text-white mb-6 leading-tight">
+                    <span class="typing-animation inline-block">Pahami Kondisi Mental</span><br>
+                    <span class="text-gradient">Anda Lebih Baik</span>
                 </h1>
-                <p class="text-lg md:text-xl text-slate-400 max-w-3xl mx-auto mb-8">
-                    Gunakan alat bantu berbasis AI kami untuk mendapatkan gambaran awal mengenai gejala depresi melalui kuesioner singkat yang sepenuhnya anonim dan rahasia.
+                
+                <p class="text-lg md:text-xl text-slate-300 max-w-3xl mx-auto mb-12 leading-relaxed">
+                    Gunakan alat bantu berbasis AI kami untuk mendapatkan gambaran awal mengenai gejala depresi melalui kuesioner singkat yang 
+                    <span class="text-cyan-400 font-semibold">sepenuhnya anonim</span> dan 
+                    <span class="text-purple-400 font-semibold">rahasia</span>.
                 </p>
-                <div class="flex justify-center items-center space-x-4">
-                    <a href="template/form.html" class="bg-cyan-500 hover:bg-cyan-600 text-white font-semibold py-3 px-8 rounded-lg text-lg transition-transform hover:scale-105 shadow-lg shadow-cyan-500/20">
-                        Mulai Tes Sekarang (Gratis)
-                    </a>
+                
+                <div class="flex justify-center items-center space-x-6 mb-8">
+                    <div class="relative">
+                        <div class="pulse-ring"></div>
+                        <a href="template/form.html" class="glow-button bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-600 hover:via-purple-600 hover:to-pink-600 text-white font-bold py-4 px-10 rounded-2xl text-lg transition-all duration-500 hover:scale-110 shadow-2xl shadow-cyan-500/30 transform hover:-translate-y-1">
+                            🚀 Mulai Tes Sekarang (Gratis)
+                        </a>
+                    </div>
                 </div>
-                <p class="text-slate-500 mt-4 text-sm">Tidak perlu mendaftar. Privasi Anda adalah prioritas kami.</p>
+                
+                <div class="flex justify-center items-center space-x-8 text-sm text-slate-400">
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        Tidak perlu mendaftar
+                    </div>
+                    <div class="flex items-center">
+                        <svg class="w-4 h-4 text-green-400 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                            <path fill-rule="evenodd" d="M5 9V7a5 5 0 0110 0v2a2 2 0 012 2v5a2 2 0 01-2 2H5a2 2 0 01-2-2v-5a2 2 0 012-2zm8-2v2H7V7a3 3 0 016 0z" clip-rule="evenodd"></path>
+                        </svg>
+                        100% Privasi Terjamin
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Features Section -->
-        <section id="fitur" class="py-20 bg-slate-900 section-glow">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-white">Mengapa Menggunakan Alat Kami?</h2>
-                    <p class="text-slate-400 mt-2 max-w-2xl mx-auto">Kami menyediakan platform yang aman dan mudah diakses untuk membantu Anda mengambil langkah pertama.</p>
+        <section id="fitur" class="py-24 relative">
+            <div class="absolute inset-0 bg-gradient-to-b from-transparent via-slate-900/50 to-transparent"></div>
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                        Mengapa Menggunakan <span class="text-gradient">Alat Kami?</span>
+                    </h2>
+                    <p class="text-slate-400 text-xl max-w-3xl mx-auto">
+                        Kami menyediakan platform yang aman dan mudah diakses untuk membantu Anda mengambil langkah pertama.
+                    </p>
                 </div>
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
                     <!-- Feature 1: Anonymous -->
-                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-1">
-                        <div class="bg-cyan-900/50 text-cyan-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                    <div class="glass-effect p-8 rounded-3xl border border-slate-600 card-hover group">
+                        <div class="bg-gradient-to-br from-cyan-500 to-blue-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
+                            </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Sepenuhnya Anonim & Aman</h3>
-                        <p class="text-slate-400">Kami tidak meminta atau menyimpan informasi pribadi Anda. Semua data jawaban diproses di perangkat Anda dan tidak dikirim ke server kami.</p>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
+                            Sepenuhnya Anonim & Aman
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed">
+                            Kami tidak meminta atau menyimpan informasi pribadi Anda. Semua data jawaban diproses di perangkat Anda dan tidak dikirim ke server kami.
+                        </p>
+                        <div class="mt-6 flex items-center text-cyan-400 font-semibold group-hover:text-cyan-300">
+                            <span>Privasi 100% terjamin</span>
+                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
                     </div>
+
                     <!-- Feature 2: Science-Based -->
-                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-1">
-                        <div class="bg-cyan-900/50 text-cyan-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" /></svg>
+                    <div class="glass-effect p-8 rounded-3xl border border-slate-600 card-hover group">
+                        <div class="bg-gradient-to-br from-purple-500 to-pink-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                            </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Berbasis Sains</h3>
-                        <p class="text-slate-400">Model AI kami dilatih berdasarkan data riset yang relevan untuk mengidentifikasi pola gejala, memberikan Anda sebuah gambaran awal yang informatif.</p>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+                            Berbasis Sains
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed">
+                            Model AI kami dilatih berdasarkan data riset yang relevan untuk mengidentifikasi pola gejala, memberikan Anda sebuah gambaran awal yang informatif.
+                        </p>
+                        <div class="mt-6 flex items-center text-purple-400 font-semibold group-hover:text-purple-300">
+                            <span>Didukung penelitian ilmiah</span>
+                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
                     </div>
+
                     <!-- Feature 3: Instant Results -->
-                    <div class="bg-slate-800 p-8 rounded-2xl border border-slate-700 hover:border-cyan-500 transition-all duration-300 transform hover:-translate-y-1">
-                         <div class="bg-cyan-900/50 text-cyan-400 w-12 h-12 rounded-lg flex items-center justify-center mb-4">
-                           <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" /></svg>
+                    <div class="glass-effect p-8 rounded-3xl border border-slate-600 card-hover group">
+                        <div class="bg-gradient-to-br from-green-500 to-teal-600 text-white w-16 h-16 rounded-2xl flex items-center justify-center mb-6 group-hover:scale-110 transition-transform duration-300">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+                            </svg>
                         </div>
-                        <h3 class="text-xl font-bold text-white mb-2">Hasil Cepat & Mudah Dipahami</h3>
-                        <p class="text-slate-400">Isi kuesioner dalam beberapa menit dan dapatkan hasil prediksi instan yang disajikan dengan jelas dan mudah dimengerti.</p>
+                        <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-green-400 transition-colors">
+                            Hasil Cepat & Mudah Dipahami
+                        </h3>
+                        <p class="text-slate-300 leading-relaxed">
+                            Isi kuesioner dalam beberapa menit dan dapatkan hasil prediksi instan yang disajikan dengan jelas dan mudah dimengerti.
+                        </p>
+                        <div class="mt-6 flex items-center text-green-400 font-semibold group-hover:text-green-300">
+                            <span>Hasil dalam hitungan detik</span>
+                            <svg class="w-4 h-4 ml-2 transform group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"></path>
+                            </svg>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
 
         <!-- How It Works Section -->
-        <section id="cara-kerja" class="py-20">
-            <div class="container mx-auto px-6">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-white">Hanya 3 Langkah Mudah</h2>
-                    <p class="text-slate-400 mt-2 max-w-2xl mx-auto">Prosesnya dirancang agar sederhana dan tidak membebani.</p>
+        <section id="cara-kerja" class="py-24 relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-purple-900/20 via-transparent to-cyan-900/20"></div>
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                        Hanya <span class="text-gradient">3 Langkah Mudah</span>
+                    </h2>
+                    <p class="text-slate-400 text-xl max-w-3xl mx-auto">
+                        Prosesnya dirancang agar sederhana dan tidak membebani.
+                    </p>
                 </div>
-                <div class="relative">
+                
+                <div class="relative max-w-4xl mx-auto">
                     <!-- Connecting line -->
-                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-0.5 bg-slate-700" style="transform: translateY(-50%);"></div>
+                    <div class="hidden md:block absolute top-1/2 left-0 w-full h-1 bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 rounded-full" style="transform: translateY(-50%);"></div>
+                    
                     <div class="grid grid-cols-1 md:grid-cols-3 gap-12 relative">
                         <!-- Step 1 -->
-                        <div class="text-center">
-                            <div class="relative inline-block">
-                                <div class="w-20 h-20 bg-slate-800 border-2 border-cyan-500 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto">1</div>
+                        <div class="text-center group">
+                            <div class="relative inline-block mb-6">
+                                <div class="pulse-ring"></div>
+                                <div class="w-24 h-24 bg-gradient-to-br from-cyan-500 to-blue-600 border-4 border-white rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto shadow-2xl group-hover:scale-110 transition-all duration-300">
+                                    1
+                                </div>
                             </div>
-                            <h3 class="text-xl font-bold text-white mt-4">Isi Kuesioner</h3>
-                            <p class="text-slate-400 mt-2">Jawab serangkaian pertanyaan mengenai kondisi demografi, gaya hidup, dan perasaan Anda.</p>
+                            <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-cyan-400 transition-colors">
+                                Isi Kuesioner
+                            </h3>
+                            <p class="text-slate-300 leading-relaxed">
+                                Jawab serangkaian pertanyaan mengenai kondisi demografi, gaya hidup, dan perasaan Anda.
+                            </p>
                         </div>
+                        
                         <!-- Step 2 -->
-                        <div class="text-center">
-                             <div class="relative inline-block">
-                                <div class="w-20 h-20 bg-slate-800 border-2 border-cyan-500 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto">2</div>
+                        <div class="text-center group">
+                            <div class="relative inline-block mb-6">
+                                <div class="pulse-ring" style="animation-delay: 0.5s;"></div>
+                                <div class="w-24 h-24 bg-gradient-to-br from-purple-500 to-pink-600 border-4 border-white rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto shadow-2xl group-hover:scale-110 transition-all duration-300">
+                                    2
+                                </div>
                             </div>
-                            <h3 class="text-xl font-bold text-white mt-4">Proses oleh AI</h3>
-                            <p class="text-slate-400 mt-2">Jawaban Anda akan dianalisis oleh model AI kami secara instan untuk mendeteksi pola gejala.</p>
+                            <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-purple-400 transition-colors">
+                                Proses oleh AI
+                            </h3>
+                            <p class="text-slate-300 leading-relaxed">
+                                Jawaban Anda akan dianalisis oleh model AI kami secara instan untuk mendeteksi pola gejala.
+                            </p>
                         </div>
+                        
                         <!-- Step 3 -->
-                        <div class="text-center">
-                             <div class="relative inline-block">
-                                <div class="w-20 h-20 bg-slate-800 border-2 border-cyan-500 rounded-full flex items-center justify-center text-2xl font-bold text-white mx-auto">3</div>
+                        <div class="text-center group">
+                            <div class="relative inline-block mb-6">
+                                <div class="pulse-ring" style="animation-delay: 1s;"></div>
+                                <div class="w-24 h-24 bg-gradient-to-br from-green-500 to-teal-600 border-4 border-white rounded-full flex items-center justify-center text-3xl font-black text-white mx-auto shadow-2xl group-hover:scale-110 transition-all duration-300">
+                                    3
+                                </div>
                             </div>
-                            <h3 class="text-xl font-bold text-white mt-4">Lihat Hasil Prediksi</h3>
-                            <p class="text-slate-400 mt-2">Dapatkan hasil prediksi beserta penjelasannya, dan pahami langkah selanjutnya yang bisa Anda ambil.</p>
+                            <h3 class="text-2xl font-bold text-white mb-4 group-hover:text-green-400 transition-colors">
+                                Lihat Hasil Prediksi
+                            </h3>
+                            <p class="text-slate-300 leading-relaxed">
+                                Dapatkan hasil prediksi beserta penjelasannya, dan pahami langkah selanjutnya yang bisa Anda ambil.
+                            </p>
                         </div>
                     </div>
                 </div>
@@ -151,66 +414,292 @@
         </section>
 
         <!-- Disclaimer Section -->
-        <section id="disclaimer" class="py-20 bg-slate-900 section-glow">
-            <div class="container mx-auto px-6">
-                <div class="bg-yellow-900/50 border border-yellow-400/30 rounded-2xl p-8 max-w-3xl mx-auto text-center">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-12 w-12 text-yellow-400 mx-auto mb-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" /></svg>
-                    <h2 class="text-2xl font-bold text-white mb-3">Pemberitahuan Penting</h2>
-                    <p class="text-yellow-200">
-                        Alat ini adalah alat skrining, **BUKAN alat diagnosis**. Hasil prediksi tidak dapat menggantikan konsultasi, diagnosis, atau penanganan dari seorang profesional kesehatan mental (psikolog atau psikiater). Jika Anda merasa cemas atau membutuhkan bantuan, kami sangat menganjurkan Anda untuk menghubungi profesional.
+        <section id="disclaimer" class="py-24 relative">
+            <div class="absolute inset-0 bg-gradient-to-br from-yellow-900/20 to-orange-900/20"></div>
+            <div class="container mx-auto px-6 relative z-10">
+                <div class="glass-effect border border-yellow-400/30 rounded-3xl p-12 max-w-4xl mx-auto text-center relative overflow-hidden">
+                    <div class="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-yellow-400 to-orange-400"></div>
+                    <div class="absolute -top-4 -left-4 w-8 h-8 bg-yellow-400 rounded-full animate-ping"></div>
+                    <div class="absolute -top-2 -right-2 w-6 h-6 bg-orange-400 rounded-full animate-pulse"></div>
+                    
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-16 w-16 text-yellow-400 mx-auto mb-6 animate-bounce" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    
+                    <h2 class="text-3xl font-black text-white mb-6">
+                        ⚠️ Pemberitahuan Penting
+                    </h2>
+                    
+                    <p class="text-yellow-100 text-lg leading-relaxed max-w-3xl mx-auto">
+                        Alat ini adalah alat skrining, <strong class="text-yellow-300">BUKAN alat diagnosis</strong>. 
+                        Hasil prediksi tidak dapat menggantikan konsultasi, diagnosis, atau penanganan dari seorang 
+                        profesional kesehatan mental (psikolog atau psikiater). Jika Anda merasa cemas atau membutuhkan bantuan, 
+                        kami sangat menganjurkan Anda untuk menghubungi profesional.
                     </p>
+                    
+                    <div class="mt-8 flex justify-center">
+                        <div class="bg-yellow-400/20 text-yellow-300 px-6 py-3 rounded-full font-semibold">
+                            🔹 Gunakan sebagai panduan awal, bukan diagnosis final
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
 
         <!-- FAQ Section -->
-        <section id="faq" class="py-20">
-            <div class="container mx-auto px-6 max-w-3xl">
-                <div class="text-center mb-12">
-                    <h2 class="text-3xl md:text-4xl font-bold text-white">Pertanyaan yang Sering Diajukan</h2>
+        <section id="faq" class="py-24">
+            <div class="container mx-auto px-6 max-w-4xl">
+                <div class="text-center mb-16">
+                    <h2 class="text-4xl md:text-5xl font-black text-white mb-4">
+                        <span class="text-gradient">Pertanyaan</span> yang Sering Diajukan
+                    </h2>
                 </div>
-                <div class="space-y-4">
-                    <details class="bg-slate-800 border border-slate-700 rounded-lg p-4 cursor-pointer group">
-                        <summary class="flex justify-between items-center font-medium text-white text-lg">
-                            Apakah hasil tes ini akurat?
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                
+                <div class="space-y-6">
+                    <details class="glass-effect border border-slate-600 rounded-2xl p-6 cursor-pointer group hover:border-cyan-500/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-semibold text-white text-lg list-none">
+                            <span class="group-hover:text-cyan-400 transition-colors">Apakah hasil tes ini akurat?</span>
+                            <div class="w-8 h-8 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </summary>
-                        <p class="text-slate-400 mt-3 pt-3 border-t border-slate-700">
-                            Hasil tes ini adalah sebuah prediksi berdasarkan model AI dan berfungsi sebagai alat skrining awal. Akurasinya bergantung pada data pelatihan dan tidak bisa dianggap 100% tepat. Ini bertujuan untuk memberikan gambaran, bukan diagnosis pasti.
-                        </p>
+                        <div class="mt-6 pt-6 border-t border-slate-700">
+                            <p class="text-slate-300 leading-relaxed">
+                                Hasil tes ini adalah sebuah prediksi berdasarkan model AI dan berfungsi sebagai alat skrining awal. Akurasinya bergantung pada data pelatihan dan tidak bisa dianggap 100% tepat. Ini bertujuan untuk memberikan gambaran, bukan diagnosis pasti.
+                            </p>
+                        </div>
                     </details>
-                    <details class="bg-slate-800 border border-slate-700 rounded-lg p-4 cursor-pointer group">
-                        <summary class="flex justify-between items-center font-medium text-white text-lg">
-                            Apakah data saya aman?
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    
+                    <details class="glass-effect border border-slate-600 rounded-2xl p-6 cursor-pointer group hover:border-purple-500/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-semibold text-white text-lg list-none">
+                            <span class="group-hover:text-purple-400 transition-colors">Apakah data saya aman?</span>
+                            <div class="w-8 h-8 bg-gradient-to-r from-purple-500 to-pink-500 rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </summary>
-                        <p class="text-slate-400 mt-3 pt-3 border-t border-slate-700">
-                            Tentu saja. Kami tidak meminta nama, email, atau data pribadi lainnya. Semua proses terjadi di browser Anda, dan kami tidak menyimpan jawaban atau hasil Anda. Privasi Anda adalah prioritas utama kami.
-                        </p>
+                        <div class="mt-6 pt-6 border-t border-slate-700">
+                            <p class="text-slate-300 leading-relaxed">
+                                Tentu saja. Kami tidak meminta nama, email, atau data pribadi lainnya. Semua proses terjadi di browser Anda, dan kami tidak menyimpan jawaban atau hasil Anda. Privasi Anda adalah prioritas utama kami.
+                            </p>
+                        </div>
                     </details>
-                    <details class="bg-slate-800 border border-slate-700 rounded-lg p-4 cursor-pointer group">
-                        <summary class="flex justify-between items-center font-medium text-white text-lg">
-                            Apa yang harus saya lakukan jika hasilnya terindikasi depresi?
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" /></svg>
+                    
+                    <details class="glass-effect border border-slate-600 rounded-2xl p-6 cursor-pointer group hover:border-green-500/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-semibold text-white text-lg list-none">
+                            <span class="group-hover:text-green-400 transition-colors">Apa yang harus saya lakukan jika hasilnya terindikasi depresi?</span>
+                            <div class="w-8 h-8 bg-gradient-to-r from-green-500 to-teal-500 rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
                         </summary>
-                        <p class="text-slate-400 mt-3 pt-3 border-t border-slate-700">
-                            Jika hasil Anda menunjukkan indikasi depresi, jangan panik. Anggap ini sebagai sinyal untuk lebih memperhatikan kesehatan mental Anda. Langkah terbaik adalah menggunakan informasi ini sebagai dasar untuk berkonsultasi dengan seorang profesional seperti psikolog atau psikiater untuk mendapatkan evaluasi dan bantuan lebih lanjut.
-                        </p>
+                        <div class="mt-6 pt-6 border-t border-slate-700">
+                            <p class="text-slate-300 leading-relaxed">
+                                Jika hasil Anda menunjukkan indikasi depresi, jangan panik. Anggap ini sebagai sinyal untuk lebih memperhatikan kesehatan mental Anda. Langkah terbaik adalah menggunakan informasi ini sebagai dasar untuk berkonsultasi dengan seorang profesional seperti psikolog atau psikiater untuk mendapatkan evaluasi dan bantuan lebih lanjut.
+                            </p>
+                        </div>
                     </details>
+                    
+                    <details class="glass-effect border border-slate-600 rounded-2xl p-6 cursor-pointer group hover:border-yellow-500/50 transition-all duration-300">
+                        <summary class="flex justify-between items-center font-semibold text-white text-lg list-none">
+                            <span class="group-hover:text-yellow-400 transition-colors">Berapa lama waktu yang dibutuhkan untuk menyelesaikan tes?</span>
+                            <div class="w-8 h-8 bg-gradient-to-r from-yellow-500 to-orange-500 rounded-full flex items-center justify-center ml-4 group-hover:scale-110 transition-transform">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 text-white transition-transform duration-300 group-open:rotate-180" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                                </svg>
+                            </div>
+                        </summary>
+                        <div class="mt-6 pt-6 border-t border-slate-700">
+                            <p class="text-slate-300 leading-relaxed">
+                                Tes ini dirancang untuk diselesaikan dalam waktu 5-10 menit. Kami mengutamakan efisiensi tanpa mengorbankan akurasi, sehingga Anda bisa mendapatkan wawasan yang berharga dalam waktu singkat.
+                            </p>
+                        </div>
+                    </details>
+                </div>
+            </div>
+        </section>
+
+        <!-- CTA Section -->
+        <section class="py-24 relative">
+            <div class="absolute inset-0 bg-gradient-to-r from-cyan-900/30 via-purple-900/30 to-pink-900/30"></div>
+            <div class="container mx-auto px-6 text-center relative z-10">
+                <div class="max-w-4xl mx-auto">
+                    <h2 class="text-4xl md:text-6xl font-black text-white mb-6">
+                        Siap untuk Memulai <span class="text-gradient">Perjalanan</span> Anda?
+                    </h2>
+                    <p class="text-xl text-slate-300 mb-12 max-w-2xl mx-auto leading-relaxed">
+                        Ambil langkah pertama menuju pemahaman yang lebih baik tentang kesehatan mental Anda. 
+                        Gratis, anonim, dan hanya membutuhkan beberapa menit.
+                    </p>
+                    
+                    <div class="relative inline-block">
+                        <div class="pulse-ring"></div>
+                        <a href="template/form.html" class="glow-button bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 hover:from-cyan-600 hover:via-purple-600 hover:to-pink-600 text-white font-black py-6 px-12 rounded-2xl text-xl transition-all duration-500 hover:scale-110 shadow-2xl shadow-cyan-500/30 transform hover:-translate-y-2 inline-flex items-center">
+                            <svg class="w-6 h-6 mr-3" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"></path>
+                            </svg>
+                            Mulai Tes Sekarang
+                        </a>
+                    </div>
+                    
+                    <div class="mt-8 flex justify-center items-center space-x-8 text-sm text-slate-400">
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-green-400 rounded-full mr-2 animate-pulse"></div>
+                            Tersedia 24/7
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-blue-400 rounded-full mr-2 animate-pulse"></div>
+                            Sepenuhnya Gratis
+                        </div>
+                        <div class="flex items-center">
+                            <div class="w-3 h-3 bg-purple-400 rounded-full mr-2 animate-pulse"></div>
+                            Hasil Instan
+                        </div>
+                    </div>
                 </div>
             </div>
         </section>
     </main>
 
     <!-- Footer -->
-    <footer class="bg-slate-900 border-t border-slate-800">
-        <div class="container mx-auto px-6 py-8 text-center text-slate-400">
-            <p>&copy; 2024 Mindalyze AI. Semua Hak Cipta Dilindungi.</p>
-            <p class="text-sm mt-2">Sebuah alat untuk meningkatkan kesadaran akan kesehatan mental.</p>
+    <footer class="glass-effect border-t border-slate-700">
+        <div class="container mx-auto px-6 py-12">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
+                <div>
+                    <h3 class="text-2xl font-bold text-white mb-4">
+                        Mind<span class="text-gradient">alyze</span> AI
+                    </h3>
+                    <p class="text-slate-400">
+                        Sebuah alat untuk meningkatkan kesadaran akan kesehatan mental dengan teknologi AI terdepan.
+                    </p>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Navigasi Cepat</h4>
+                    <ul class="space-y-2 text-slate-400">
+                        <li><a href="#fitur" class="hover:text-cyan-400 transition-colors">Fitur</a></li>
+                        <li><a href="#cara-kerja" class="hover:text-cyan-400 transition-colors">Cara Kerja</a></li>
+                        <li><a href="#faq" class="hover:text-cyan-400 transition-colors">FAQ</a></li>
+                    </ul>
+                </div>
+                <div>
+                    <h4 class="text-lg font-semibold text-white mb-4">Support</h4>
+                    <p class="text-slate-400 mb-4">
+                        Butuh bantuan atau ada pertanyaan? Kami siap membantu Anda.
+                    </p>
+                    <div class="flex space-x-4">
+                        <div class="w-10 h-10 bg-gradient-to-br from-cyan-500 to-blue-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z"></path>
+                                <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z"></path>
+                            </svg>
+                        </div>
+                        <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-pink-600 rounded-full flex items-center justify-center cursor-pointer hover:scale-110 transition-transform">
+                            <svg class="w-5 h-5 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                <path fill-rule="evenodd" d="M18 10c0 3.866-3.582 7-8 7a8.841 8.841 0 01-4.083-.98L2 17l1.338-3.123C2.493 12.767 2 11.434 2 10c0-3.866 3.582-7 8-7s8 3.134 8 7zM7 9H5v2h2V9zm8 0h-2v2h2V9zM9 9h2v2H9V9z" clip-rule="evenodd"></path>
+                            </svg>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="border-t border-slate-700 pt-8 text-center">
+                <p class="text-slate-400 mb-2">
+                    &copy; 2024 Mindalyze AI. Semua Hak Cipta Dilindungi.
+                </p>
+                <p class="text-sm text-slate-500">
+                    Dibuat dengan ❤️ untuk kesehatan mental yang lebih baik
+                </p>
+            </div>
         </div>
     </footer>
 
-    <script src="static/js/script.js"></script>
+    <script>
+        // Smooth scrolling for anchor links
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Parallax effect for floating orbs
+        window.addEventListener('scroll', () => {
+            const scrolled = window.pageYOffset;
+            const parallax = document.querySelectorAll('.floating-orb');
+            const speed = 0.5;
+
+            parallax.forEach((element, index) => {
+                const yPos = -(scrolled * speed * (index + 1) * 0.1);
+                element.style.transform = `translateY(${yPos}px) rotate(${scrolled * 0.1}deg)`;
+            });
+        });
+
+        // Add intersection observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all cards for animation
+        document.querySelectorAll('.card-hover').forEach(card => {
+            card.style.opacity = '0';
+            card.style.transform = 'translateY(30px)';
+            card.style.transition = 'all 0.6s ease-out';
+            observer.observe(card);
+        });
+
+        // Mobile menu toggle
+        const menuToggle = document.querySelector('.menu-toggle');
+        const mobileMenu = document.createElement('div');
+        mobileMenu.className = 'md:hidden absolute top-full left-0 w-full glass-effect border-t border-slate-700 p-6 space-y-4';
+        mobileMenu.innerHTML = `
+            <a href="#fitur" class="block hover:text-cyan-400 transition-colors">Fitur</a>
+            <a href="#cara-kerja" class="block hover:text-cyan-400 transition-colors">Cara Kerja</a>
+            <a href="#faq" class="block hover:text-cyan-400 transition-colors">FAQ</a>
+        `;
+        mobileMenu.style.display = 'none';
+        
+        menuToggle.parentElement.appendChild(mobileMenu);
+        
+        menuToggle.addEventListener('click', () => {
+            mobileMenu.style.display = mobileMenu.style.display === 'none' ? 'block' : 'none';
+        });
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', (e) => {
+            if (!menuToggle.contains(e.target) && !mobileMenu.contains(e.target)) {
+                mobileMenu.style.display = 'none';
+            }
+        });
+
+        // Add loading animation
+        window.addEventListener('load', () => {
+            document.body.style.opacity = '0';
+            document.body.style.transition = 'opacity 0.5s ease-in';
+            setTimeout(() => {
+                document.body.style.opacity = '1';
+            }, 100);
+        });
+    </script>
 
 </body>
 </html>

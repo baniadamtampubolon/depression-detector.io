@@ -1,82 +1,93 @@
-// Get page elements
+// Load TensorFlow.js model
+let model;
+
+async function loadModel() {
+  const model = await tf.loadLayersModel('/static/model/tfjs_model/model.json');
+  console.log("✅ Model loaded successfully");
+  return model;
+}
+
+
+// Halaman
 const formPage = document.getElementById('form-page');
 const resultPage = document.getElementById('result-page');
 const predictionForm = document.getElementById('prediction-form');
 const backToFormButton = document.getElementById('back-to-form-button');
 
-// Handle form submission
-predictionForm.addEventListener('submit', function(event) {
-    // Prevent the form from reloading the page
+// Urutan fitur HARUS sesuai dengan saat pelatihan model
+const featureOrder = [
+    'AGERNG', 'GENDER', 'EDU', 'PROF', 'MARSTS', 'RESDPL', 'LIVWTH',
+    'ENVSAT', 'POSSAT', 'FINSTR', 'DEBT', 'PHYEX', 'SMOKE', 'DRINK',
+    'ILLNESS', 'PREMED', 'EATDIS', 'AVGSLP', 'INSOM', 'TSSN',
+    'WRKPRE', 'ANXI', 'DEPRI', 'ABUSED', 'CHEAT', 'THREAT', 'SUICIDE',
+    'INFER', 'CONFLICT', 'LOST'
+];
+
+// Saat form disubmit
+predictionForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
-    // The feature order must be EXACTLY the same as in your Python script.
-    const featureOrder = [
-        'AGERNG', 'GENDER', 'EDU', 'PROF', 'MARSTS', 'RESDPL', 'LIVWTH', 
-        'ENVSAT', 'POSSAT', 'FINSTR', 'DEBT', 'PHYEX', 'SMOKE', 'DRINK', 
-        'ILLNESS', 'PREMED', 'EATDIS', 'AVGSLP', 'INSOM', 'TSSN', 
-        'WRKPRE', 'ANXI', 'DEPRI', 'ABUSED', 'CHEAT', 'THREAT', 'SUICIDE', 
-        'INFER', 'CONFLICT', 'LOST'
-    ];
-
-    // Collect all values from the form in the correct order.
-    const numericalInputData = featureOrder.map(featureId => {
-        const element = document.getElementById(featureId);
+    // Ambil input numerik dari user
+    const inputValues = featureOrder.map(id => {
+        const element = document.getElementById(id);
         return parseInt(element.value, 10);
     });
-    
-    console.log("Input Data Collected:", numericalInputData);
 
-    // --- IMPORTANT: PREDICTION LOGIC (PLACEHOLDER) ---
-    const riskFactors = ['FINSTR', 'DEBT', 'ILLNESS', 'PREMED', 'EATDIS', 'INSOM', 'ANXI', 'DEPRI', 'ABUSED', 'CHEAT', 'THREAT', 'SUICIDE', 'INFER', 'CONFLICT', 'LOST'];
-    let riskScore = 0;
-    numericalInputData.forEach((value, index) => {
-        const featureName = featureOrder[index];
-        if (riskFactors.includes(featureName) && value === 1) {
-            riskScore += 1;
-        }
-    });
-    const predictionProbability = Math.min(0.15 + (riskScore * 0.06), 0.95);
-    const predictedClass = predictionProbability > 0.5 ? 1 : 0;
-    // --- END OF PLACEHOLDER LOGIC ---
+    if (!model) {
+        alert("Model belum siap. Coba beberapa saat lagi.");
+        return;
+    }
 
-    // Get result elements
+    // Prediksi menggunakan model TensorFlow.js
+    const inputTensor = tf.tensor2d([inputValues]); // shape: [1, 30]
+    const prediction = model.predict(inputTensor);
+    const predictionArray = await prediction.array();
+
+    const probability = predictionArray[0][0];
+    const predictedClass = probability > 0.5 ? 1 : 0;
+
+    // Tampilkan hasil ke UI
     const resultText = document.getElementById('result-text');
     const probabilityText = document.getElementById('probability-text');
-    
-    // Display the results
-    if (predictedClass === 1) {
-        resultText.textContent = "Terindikasi Depresi";
-        resultText.className = "text-4xl font-bold mb-2 text-red-400";
-    } else {
-        resultText.textContent = "Tidak Terindikasi Depresi";
-        resultText.className = "text-4xl font-bold mb-2 text-green-400";
-    }
-    probabilityText.textContent = `Probabilitas dari Model: ${(predictionProbability * 100).toFixed(2)}%`;
-    
-    // Switch to the result page
+
+    resultText.textContent = predictedClass === 1 ? "Terindikasi Depresi" : "Tidak Terindikasi Depresi";
+    resultText.className = predictedClass === 1
+        ? "text-4xl font-bold mb-2 text-red-400"
+        : "text-4xl font-bold mb-2 text-green-400";
+
+    probabilityText.textContent = `Probabilitas dari Model: ${(probability * 100).toFixed(2)}%`;
+
+    // Navigasi ke halaman hasil
     formPage.classList.add('hidden');
     resultPage.classList.remove('hidden');
-    window.scrollTo(0, 0); // Scroll to top of the new page
+    window.scrollTo(0, 0);
 });
 
-// Handle clicking the "back" button
-backToFormButton.addEventListener('click', function() {
-    // Switch back to the form page
-    resultPage.classList.add('hidden');
-    formPage.classList.remove('hidden');
-    window.scrollTo(0, 0); // Scroll to top
-});
+    // Tombol kembali ke form
+    if (backToFormButton && formPage && resultPage) {
+        backToFormButton.addEventListener('click', function () {
+            resultPage.classList.add('hidden');
+            formPage.classList.remove('hidden');
 
-// Smooth scroll for anchor links
-document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-    anchor.addEventListener('click', function (e) {
-        e.preventDefault();
-        const targetId = this.getAttribute('href');
-        const targetElement = document.querySelector(targetId);
-        if (targetElement) {
-            targetElement.scrollIntoView({
-                behavior: 'smooth'
-            });
-        }
+            if (predictionForm) {
+                predictionForm.reset();
+            }
+
+            window.scrollTo(0, 0);
+        });
+    }
+
+    // Smooth scroll anchor
+    document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+            e.preventDefault();
+            const targetId = this.getAttribute('href');
+            const targetElement = document.querySelector(targetId);
+            if (targetElement) {
+                targetElement.scrollIntoView({
+                    behavior: 'smooth'
+                });
+            }
+        });
     });
-});
+

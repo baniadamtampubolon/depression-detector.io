@@ -3,8 +3,9 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Deteksi Dini Depresi Berbasis AI</title>
+    <title>Hasil Deteksi Dini Depresi - Mindalyze AI</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@tensorflow/tfjs@4.14.0/dist/tf.min.js"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
@@ -12,54 +13,544 @@
         body {
             font-family: 'Inter', sans-serif;
         }
-        /* Custom scrollbar for better aesthetics */
-        ::-webkit-scrollbar {
-            width: 8px;
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #1f2937; }
+        ::-webkit-scrollbar-thumb { background: #4b5563; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #6b7280; }
+        
+        .loading-spinner {
+            border: 3px solid #374151;
+            border-top: 3px solid #06b6d4;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
         }
-        ::-webkit-scrollbar-track {
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        .fade-in {
+            animation: fadeIn 0.5s ease-in;
+        }
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        .debug-console {
             background: #1f2937;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4b5563;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6b7280;
-        }
-        .page {
-            display: block;
-        }
-        .page.result {
-            display: none;
+            border: 1px solid #374151;
+            border-radius: 8px;
+            padding: 12px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            max-height: 200px;
+            overflow-y: auto;
+            white-space: pre-wrap;
         }
     </style>
 </head>
-<body class="bg-slate-900 text-gray-300">
-    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
-        <!-- Page 2: Result Section -->
-        <div id="result-page" class="page.result bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg">
-            <div class="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg text-center">
-                <h2 class="text-2xl font-bold text-cyan-400 mb-4">Hasil Prediksi</h2>
-                <p id="result-text" class="text-4xl font-bold mb-2"></p>
-                <p id="probability-text" class="text-gray-400 mb-6"></p>
-                <div class="bg-yellow-900 border-l-4 border-yellow-400 text-yellow-200 p-4 rounded-lg text-left mb-8">
-                    <p class="font-bold">Penting:</p>
-                    <p class="text-sm">Hasil ini adalah prediksi berdasarkan model kecerdasan buatan dan data yang Anda masukkan. Ini BUKAN diagnosis medis. Untuk diagnosis dan penanganan yang akurat, silakan berkonsultasi dengan profesional kesehatan mental seperti psikolog atau psikiater.</p>
+<body class="bg-slate-900 text-gray-300 min-h-screen">
+    <!-- Header -->
+    <nav class="bg-slate-800 border-b border-slate-700">
+        <div class="container mx-auto px-6 py-4">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-lg flex items-center justify-center">
+                        <span class="text-white font-bold text-sm">M</span>
+                    </div>
+                    <span class="text-xl font-bold text-white">Mindalyze AI</span>
                 </div>
-                <button id="back-to-form-button" class="text-white bg-gray-600 hover:bg-gray-700 focus:ring-4 focus:outline-none focus:ring-gray-800 font-medium rounded-lg text-base w-full sm:w-auto px-10 py-3 text-center transition-colors duration-300">
-                    Kembali ke Menu Utama
-                </button>
-                
+                <div class="text-sm text-slate-400">Hasil Deteksi</div>
             </div>
         </div>
-        <script src="../static/js/result.js"></script>
+    </nav>
+
+    <div class="container mx-auto p-4 sm:p-6 md:p-8 max-w-4xl">
+        <!-- Debug Console (toggleable) -->
+        <div id="debug-section" class="mb-6 hidden">
+            <div class="bg-gray-800 p-4 rounded-lg">
+                <div class="flex justify-between items-center mb-3">
+                    <h3 class="text-lg font-semibold text-yellow-400">🔧 Debug Console</h3>
+                    <button id="clear-debug" class="text-xs bg-gray-600 hover:bg-gray-700 px-2 py-1 rounded">Clear</button>
+                </div>
+                <div id="debug-console" class="debug-console text-green-400"></div>
+            </div>
+        </div>
+
+        <!-- Toggle Debug Button -->
+        <div class="text-center mb-4">
+            <button id="toggle-debug" class="text-xs bg-gray-700 hover:bg-gray-600 text-gray-300 px-3 py-1 rounded">
+                Show Debug Info
+            </button>
+        </div>
+
+        <!-- Loading State -->
+        <div id="loading-state" class="text-center py-12">
+            <div class="loading-spinner mb-4"></div>
+            <p class="text-lg text-gray-400">Memuat model AI dan menganalisis data...</p>
+            <p class="text-sm text-gray-500 mt-2">Harap tunggu sebentar</p>
+            <div id="loading-progress" class="mt-4 text-sm text-gray-400"></div>
+        </div>
+
+        <!-- Error State -->
+        <div id="error-state" class="hidden">
+            <div class="bg-red-900 border border-red-700 text-red-200 p-6 rounded-2xl shadow-lg">
+                <div class="text-center mb-6">
+                    <div class="text-6xl mb-4">⚠️</div>
+                    <h2 class="text-2xl font-bold mb-4">Terjadi Kesalahan</h2>
+                    <p id="error-message" class="mb-6">Gagal memuat model atau menganalisis data.</p>
+                </div>
+                
+                <!-- Detailed Error Info -->
+                <div id="error-details" class="bg-red-800 p-4 rounded-lg mb-6 text-sm">
+                    <h4 class="font-bold mb-2">Detail Error:</h4>
+                    <pre id="error-stack" class="whitespace-pre-wrap text-xs"></pre>
+                </div>
+
+                <!-- Troubleshooting -->
+                <div class="bg-red-800 p-4 rounded-lg mb-6 text-sm">
+                    <h4 class="font-bold mb-2">💡 Kemungkinan Solusi:</h4>
+                    <ul class="space-y-1 text-xs">
+                        <li>• Pastikan Anda mengakses melalui web server (http/https), bukan file://</li>
+                        <li>• Periksa apakah file model.json ada di folder static/model/tfjs_model/</li>
+                        <li>• Pastikan semua file model (.bin) tersedia</li>
+                        <li>• Coba refresh halaman atau clear browser cache</li>
+                        <li>• Pastikan koneksi internet stabil</li>
+                    </ul>
+                </div>
+
+                <div class="flex justify-center space-x-4">
+                    <button id="retry-button" class="bg-red-600 hover:bg-red-700 text-white font-medium rounded-lg px-6 py-3 transition-colors duration-300">
+                        🔄 Coba Lagi
+                    </button>
+                    <button id="back-to-form-error" class="bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg px-6 py-3 transition-colors duration-300">
+                        🏠 Kembali ke Form
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Result Section -->
+        <div id="result-section" class="hidden fade-in">
+            <div class="bg-gray-800 p-6 sm:p-8 rounded-2xl shadow-lg">
+                <div class="text-center mb-8">
+                    <div class="text-6xl mb-4" id="result-icon">🧠</div>
+                    <h2 class="text-3xl font-bold text-cyan-400 mb-2">Hasil Analisis AI</h2>
+                    <p class="text-gray-400">Berdasarkan data yang Anda berikan</p>
+                </div>
+
+                <div class="text-center mb-8">
+                    <div class="bg-gray-700 p-6 rounded-xl mb-4">
+                        <p id="result-text" class="text-4xl font-bold mb-2"></p>
+                        <p id="probability-text" class="text-gray-400 text-lg"></p>
+                    </div>
+                </div>
+
+                <div class="mb-8">
+                    <div class="flex justify-between text-sm text-gray-400 mb-2">
+                        <span>Tingkat Keyakinan Model</span>
+                        <span id="confidence-percentage"></span>
+                    </div>
+                    <div class="w-full bg-gray-700 rounded-full h-3">
+                        <div id="confidence-bar" class="h-3 rounded-full transition-all duration-500"></div>
+                    </div>
+                </div>
+
+                <div class="bg-yellow-900 border-l-4 border-yellow-400 text-yellow-200 p-6 rounded-lg mb-8">
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-3">⚠️</div>
+                        <div>
+                            <p class="font-bold text-lg mb-2">Penting untuk Diingat:</p>
+                            <ul class="text-sm space-y-1">
+                                <li>• Hasil ini adalah prediksi berdasarkan model kecerdasan buatan</li>
+                                <li>• Ini BUKAN diagnosis medis resmi</li>
+                                <li>• Untuk diagnosis dan penanganan yang akurat, konsultasikan dengan profesional kesehatan mental</li>
+                                <li>• Psikolog atau psikiater dapat memberikan evaluasi yang lebih komprehensif</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="recommendations" class="bg-blue-900 border-l-4 border-blue-400 text-blue-200 p-6 rounded-lg mb-8 hidden">
+                    <div class="flex items-start">
+                        <div class="text-2xl mr-3">💡</div>
+                        <div>
+                            <p class="font-bold text-lg mb-2">Rekomendasi:</p>
+                            <div id="recommendation-content"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="flex flex-col sm:flex-row gap-4 justify-center">
+                    <button id="back-to-form-button" class="bg-gray-600 hover:bg-gray-700 text-white font-medium rounded-lg px-8 py-3 transition-colors duration-300">
+                        🏠 Kembali ke Menu Utama
+                    </button>
+                    <button id="print-result-button" class="bg-cyan-600 hover:bg-cyan-700 text-white font-medium rounded-lg px-8 py-3 transition-colors duration-300">
+                        🖨️ Cetak Hasil
+                    </button>
+                </div>
+            </div>
+        </div>
     </div>
+
+    <footer class="bg-slate-900 border-t border-slate-800 mt-12">
+        <div class="container mx-auto px-6 py-8 text-center text-slate-400">
+            <p>&copy; 2024 Mindalyze AI. Semua Hak Cipta Dilindungi.</p>
+            <p class="text-sm mt-2">Sebuah alat untuk meningkatkan kesadaran akan kesehatan mental.</p>
+        </div>
+    </footer>
+
+    <script>
+        let model;
+        let isModelLoaded = false;
+        let debugLog = [];
+
+        // Debug logging function
+        function addDebugLog(message, type = 'info') {
+            const timestamp = new Date().toLocaleTimeString();
+            const logEntry = `[${timestamp}] ${type.toUpperCase()}: ${message}`;
+            debugLog.push(logEntry);
+            
+            const debugConsole = document.getElementById('debug-console');
+            if (debugConsole) {
+                debugConsole.textContent = debugLog.join('\n');
+                debugConsole.scrollTop = debugConsole.scrollHeight;
+            }
+            
+            // Also log to browser console
+            console.log(logEntry);
+        }
+
+        // Show/hide different states
+        function showLoading(message = '') {
+            document.getElementById('loading-state').classList.remove('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            if (message) {
+                document.getElementById('loading-progress').textContent = message;
+            }
+        }
+
+        function showError(message = '', errorDetails = '') {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.remove('hidden');
+            document.getElementById('result-section').classList.add('hidden');
+            
+            if (message) {
+                document.getElementById('error-message').textContent = message;
+            }
+            if (errorDetails) {
+                document.getElementById('error-stack').textContent = errorDetails;
+            }
+        }
+
+        function showResult() {
+            document.getElementById('loading-state').classList.add('hidden');
+            document.getElementById('error-state').classList.add('hidden');
+            document.getElementById('result-section').classList.remove('hidden');
+        }
+
+        async function loadModel() {
+            try {
+                addDebugLog("🔄 Memulai loading model...");
+                showLoading("Mencari file model...");
+
+                // Check current location
+                addDebugLog(`📍 Current URL: ${window.location.href}`);
+                addDebugLog(`📍 Current pathname: ${window.location.pathname}`);
+
+                // Model paths to try (adjusted based on your folder structure)
+                const possiblePaths = [
+                    // Dari template/result.html ke model
+                    '../static/model/tfjs_model/model.json',
+                    './static/model/tfjs_model/model.json',
+                    '/static/model/tfjs_model/model.json',
+                    'static/model/tfjs_model/model.json',
+                    // Fallback paths
+                    '../model/tfjs_model/model.json',
+                    './model/tfjs_model/model.json'
+                ];
+
+                addDebugLog(`🔍 Akan mencoba ${possiblePaths.length} path berbeda...`);
+
+                let modelLoaded = false;
+                let lastError = null;
+
+                for (let i = 0; i < possiblePaths.length; i++) {
+                    const path = possiblePaths[i];
+                    try {
+                        addDebugLog(`📂 Mencoba path ${i + 1}/${possiblePaths.length}: ${path}`);
+                        showLoading(`Mencoba memuat model... (${i + 1}/${possiblePaths.length})`);
+
+                        // Test if file exists first
+                        const response = await fetch(path, { method: 'HEAD' });
+                        if (!response.ok) {
+                            throw new Error(`HTTP ${response.status}: ${response.statusText}`);
+                        }
+
+                        addDebugLog(`✅ File ditemukan di: ${path}`);
+                        showLoading(`Memuat model dari ${path}...`);
+
+                        model = await tf.loadLayersModel(path);
+                        addDebugLog(`✅ Model berhasil dimuat dari: ${path}`);
+                        
+                        // Log model info
+                        addDebugLog(`📊 Model inputs: ${JSON.stringify(model.inputs.map(i => i.shape))}`);
+                        addDebugLog(`📊 Model outputs: ${JSON.stringify(model.outputs.map(o => o.shape))}`);
+                        
+                        modelLoaded = true;
+                        break;
+
+                    } catch (pathError) {
+                        lastError = pathError;
+                        addDebugLog(`❌ Gagal dari ${path}: ${pathError.message}`, 'error');
+                        
+                        // Special handling for common errors
+                        if (pathError.message.includes('404')) {
+                            addDebugLog(`   → File tidak ditemukan di path ini`, 'warn');
+                        } else if (pathError.message.includes('CORS')) {
+                            addDebugLog(`   → CORS error: pastikan menggunakan web server`, 'warn');
+                        } else if (pathError.message.includes('Failed to fetch')) {
+                            addDebugLog(`   → Network error atau file tidak accessible`, 'warn');
+                        }
+                    }
+                }
+
+                if (!modelLoaded) {
+                    const errorMsg = `Model tidak dapat dimuat dari semua path yang dicoba. Last error: ${lastError?.message || 'Unknown error'}`;
+                    addDebugLog(`💥 ${errorMsg}`, 'error');
+                    
+                    // Provide helpful debugging info
+                    addDebugLog(`🔧 Debugging tips:`, 'warn');
+                    addDebugLog(`   → Pastikan menjalankan dengan web server (http/https)`, 'warn');
+                    addDebugLog(`   → Cek apakah file model.json ada di folder static/model/tfjs_model/`, 'warn');
+                    addDebugLog(`   → Pastikan struktur folder sesuai dengan path yang dicoba`, 'warn');
+                    
+                    throw new Error(errorMsg);
+                }
+
+                isModelLoaded = true;
+                addDebugLog(`🎉 Model loading selesai! Siap untuk prediksi.`);
+                return true;
+
+            } catch (error) {
+                addDebugLog(`💥 Error dalam loadModel: ${error.message}`, 'error');
+                addDebugLog(`📋 Stack trace: ${error.stack}`, 'error');
+                throw error;
+            }
+        }
+
+        function getInputDataFromQuery() {
+            try {
+                addDebugLog(`🔍 Mengambil data dari URL parameters...`);
+                const params = new URLSearchParams(window.location.search);
+                
+                addDebugLog(`📋 URL search params: ${params.toString()}`);
+                
+                if (!params.toString()) {
+                    throw new Error('Tidak ada data input yang ditemukan. Pastikan Anda mengakses halaman ini melalui form yang benar.');
+                }
+
+                const inputData = [];
+                const featureOrder = [
+                    'AGERNG', 'GENDER', 'EDU', 'PROF', 'MARSTS', 'RESDPL', 'LIVWTH',
+                    'ENVSAT', 'POSSAT', 'FINSTR', 'DEBT', 'PHYEX', 'SMOKE', 'DRINK',
+                    'ILLNESS', 'PREMED', 'EATDIS', 'AVGSLP', 'INSOM', 'TSSN',
+                    'WRKPRE', 'ANXI', 'DEPRI', 'ABUSED', 'CHEAT', 'THREAT', 'SUICIDE',
+                    'INFER', 'CONFLICT', 'LOST'
+                ];
+
+                let validParams = 0;
+                let paramValues = [];
+
+                featureOrder.forEach((key, index) => {
+                    const val = params.get(key);
+                    if (val !== null) {
+                        validParams++;
+                        const parsedVal = parseInt(val, 10);
+                        const finalVal = isNaN(parsedVal) ? 0 : parsedVal;
+                        inputData.push(finalVal);
+                        paramValues.push(`${key}: ${finalVal}`);
+                    } else {
+                        inputData.push(0);
+                        paramValues.push(`${key}: 0 (default)`);
+                    }
+                });
+
+                addDebugLog(`📊 Found ${validParams} valid parameters out of ${featureOrder.length}`);
+                addDebugLog(`📋 Parameter values: ${paramValues.slice(0, 10).join(', ')}...`);
+
+                if (validParams === 0) {
+                    throw new Error('Tidak ada parameter yang valid ditemukan dalam URL.');
+                }
+
+                addDebugLog(`✅ Input data berhasil diambil: ${inputData.length} features`);
+                return inputData;
+
+            } catch (error) {
+                addDebugLog(`❌ Error dalam getInputDataFromQuery: ${error.message}`, 'error');
+                throw error;
+            }
+        }
+
+        async function predictDepression() {
+            try {
+                addDebugLog(`🤖 Memulai prediksi...`);
+                
+                if (!isModelLoaded || !model) {
+                    throw new Error("Model belum dimuat dengan benar");
+                }
+
+                const inputData = getInputDataFromQuery();
+                addDebugLog(`📊 Input data: [${inputData.slice(0, 5).join(', ')}...] (${inputData.length} total)`);
+
+                showLoading("Membuat prediksi...");
+
+                // Create tensor with correct shape
+                addDebugLog(`🔧 Membuat tensor dengan shape [1, 30, 1]...`);
+                const inputTensor = tf.tensor3d([inputData], [1, 30, 1]);
+                addDebugLog(`✅ Input tensor shape: [${inputTensor.shape.join(', ')}]`);
+
+                // Make prediction
+                addDebugLog(`🔮 Menjalankan model.predict()...`);
+                const prediction = model.predict(inputTensor);
+                const predictionData = await prediction.data();
+                const probability = predictionData[0];
+
+                addDebugLog(`📈 Raw prediction: ${probability}`);
+
+                // Clean up tensors
+                inputTensor.dispose();
+                prediction.dispose();
+                addDebugLog(`🧹 Tensors disposed untuk memory management`);
+
+                const predictedClass = probability > 0.5 ? 1 : 0;
+                const confidence = Math.max(probability, 1 - probability) * 100;
+
+                addDebugLog(`🎯 Final prediction: Class=${predictedClass}, Probability=${probability.toFixed(4)}, Confidence=${confidence.toFixed(2)}%`);
+
+                displayResult(predictedClass, probability, confidence);
+                addDebugLog(`✅ Prediksi selesai dan hasil ditampilkan`);
+                
+            } catch (error) {
+                addDebugLog(`💥 Error dalam predictDepression: ${error.message}`, 'error');
+                addDebugLog(`📋 Stack trace: ${error.stack}`, 'error');
+                throw error;
+            }
+        }
+
+        function displayResult(predictedClass, probability, confidence) {
+            const resultText = document.getElementById("result-text");
+            const probabilityText = document.getElementById("probability-text");
+            const confidencePercentage = document.getElementById("confidence-percentage");
+            const confidenceBar = document.getElementById("confidence-bar");
+            const resultIcon = document.getElementById("result-icon");
+            const recommendations = document.getElementById("recommendations");
+            const recommendationContent = document.getElementById("recommendation-content");
+
+            if (predictedClass === 1) {
+                resultText.textContent = "Terindikasi Depresi";
+                resultText.className = "text-4xl font-bold mb-2 text-red-400";
+                resultIcon.textContent = "😔";
+                confidenceBar.className = "h-3 rounded-full transition-all duration-500 bg-red-500";
+                
+                recommendations.classList.remove('hidden');
+                recommendationContent.innerHTML = `
+                    <ul class="text-sm space-y-1">
+                        <li>• Pertimbangkan untuk berkonsultasi dengan psikolog atau psikiater</li>
+                        <li>• Jaga pola tidur dan makan yang teratur</li>
+                        <li>• Lakukan aktivitas fisik ringan secara rutin</li>
+                        <li>• Terhubung dengan keluarga dan teman-teman terdekat</li>
+                        <li>• Hindari alkohol dan zat-zat yang dapat memperburuk mood</li>
+                    </ul>
+                `;
+            } else {
+                resultText.textContent = "Tidak Terindikasi Depresi";
+                resultText.className = "text-4xl font-bold mb-2 text-green-400";
+                resultIcon.textContent = "😊";
+                confidenceBar.className = "h-3 rounded-full transition-all duration-500 bg-green-500";
+                
+                recommendations.classList.remove('hidden');
+                recommendationContent.innerHTML = `
+                    <ul class="text-sm space-y-1">
+                        <li>• Terus jaga kesehatan mental dengan baik</li>
+                        <li>• Lakukan aktivitas yang Anda nikmati secara rutin</li>
+                        <li>• Pertahankan hubungan sosial yang positif</li>
+                        <li>• Tetap waspada terhadap perubahan mood atau perasaan</li>
+                        <li>• Jangan ragu untuk mencari bantuan jika diperlukan</li>
+                    </ul>
+                `;
+            }
+
+            probabilityText.textContent = `Skor Probabilitas: ${(probability * 100).toFixed(1)}%`;
+            confidencePercentage.textContent = `${confidence.toFixed(1)}%`;
+            confidenceBar.style.width = `${confidence}%`;
+
+            showResult();
+            addDebugLog(`✅ Hasil ditampilkan: ${predictedClass === 1 ? 'Depresi' : 'Tidak Depresi'} (${confidence.toFixed(1)}% confidence)`);
+        }
+
+        // Event listeners
+        document.addEventListener('DOMContentLoaded', async function() {
+            try {
+                addDebugLog(`🚀 Aplikasi dimulai...`);
+                addDebugLog(`🌐 TensorFlow.js version: ${tf.version.tfjs}`);
+                addDebugLog(`💻 User agent: ${navigator.userAgent}`);
+                
+                showLoading("Memulai aplikasi...");
+                
+                await loadModel();
+                
+                showLoading("Memproses data input...");
+                await new Promise(resolve => setTimeout(resolve, 500));
+                
+                await predictDepression();
+                
+            } catch (error) {
+                addDebugLog(`💥 Application error: ${error.message}`, 'error');
+                showError(error.message, error.stack);
+            }
+        });
+
+        // Event handlers
+        document.addEventListener('click', function(e) {
+            if (e.target.id === 'toggle-debug') {
+                const debugSection = document.getElementById('debug-section');
+                const toggleBtn = document.getElementById('toggle-debug');
+                
+                if (debugSection.classList.contains('hidden')) {
+                    debugSection.classList.remove('hidden');
+                    toggleBtn.textContent = 'Hide Debug Info';
+                } else {
+                    debugSection.classList.add('hidden');
+                    toggleBtn.textContent = 'Show Debug Info';
+                }
+            } else if (e.target.id === 'clear-debug') {
+                debugLog = [];
+                document.getElementById('debug-console').textContent = '';
+            } else if (e.target.id === 'back-to-form-button' || e.target.id === 'back-to-form-error') {
+                window.location.href = '../index.html';
+            } else if (e.target.id === 'retry-button') {
+                window.location.reload();
+            } else if (e.target.id === 'print-result-button') {
+                window.print();
+            }
+        });
+
+        // Print styles
+        const printStyles = `
+            <style media="print">
+                .no-print, #debug-section, #toggle-debug { display: none !important; }
+                body { background: white !important; color: black !important; }
+                .bg-gray-800, .bg-gray-700 { background: white !important; border: 1px solid #ccc !important; }
+                .text-cyan-400 { color: #0891b2 !important; }
+                .text-red-400 { color: #dc2626 !important; }
+                .text-green-400 { color: #16a34a !important; }
+            </style>
+        `;
+        document.head.insertAdjacentHTML('beforeend', printStyles);
+    </script>
 </body>
-<!-- Footer -->
-<footer class="bg-slate-900 border-t border-slate-800">
-    <div class="container mx-auto px-6 py-8 text-center text-slate-400">
-        <p>&copy; 2024 Mindalyze AI. Semua Hak Cipta Dilindungi.</p>
-        <p class="text-sm mt-2">Sebuah alat untuk meningkatkan kesadaran akan kesehatan mental.</p>
-    </div>
-</footer>
 </html>
